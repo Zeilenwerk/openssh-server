@@ -5,16 +5,11 @@ FROM alpine:3.5
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
-RUN apk add --no-cache openssh && \
-    ssh-keygen -A && \
-    echo -e "ClientAliveInterval 1\nGatewayPorts yes\nPermitEmptyPasswords yes\nPort 8022\nClientAliveCountMax 10\nPermitRootLogin yes\n" >> /etc/ssh/sshd_config
+# Setup during docker build time
+COPY build.sh /usr/src/app
+RUN chmod +x /usr/src/app/build.sh && /usr/src/app/build.sh
 
-# Set the permissions necessary to run as a non-root user
-RUN chmod -R g+wr /etc/ssh && \
-    chmod g+w /etc/passwd && \
-    chmod -R g+w /usr/src/app && \
-    chmod -R g+w /run/
-
+# Command to run when running image
 COPY run.sh /usr/src/app
 RUN chmod +x /usr/src/app/run.sh
 
